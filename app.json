@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "Digital Identity QR",
+    "slug": "digital-identity-qr",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#1E3A8A"
+    },
+    "android": {
+      "package": "com.dsvs.demo",
+      "permissions": ["CAMERA"],
+      "adaptiveIcon": {
+        "backgroundColor": "#1E3A8A"
+      }
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Digital Identity QR to access your camera to scan identity QR codes."
+        }
+      ]
+    ]
+  }
+}

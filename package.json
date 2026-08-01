@@ -1,0 +1,24 @@
+{
+  "name": "digital-identity-qr",
+  "version": "1.0.0",
+  "main": "node_modules/expo/AppEntry.js",
+  "private": true,
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "expo": "~51.0.28",
+    "expo-status-bar": "~1.12.1",
+    "expo-camera": "~15.0.16",
+    "react": "18.2.0",
+    "react-native": "0.74.5",
+    "react-native-svg": "15.2.0",
+    "react-native-qrcode-svg": "^6.3.2",
+    "@react-native-async-storage/async-storage": "1.23.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0"
+  }
+}
