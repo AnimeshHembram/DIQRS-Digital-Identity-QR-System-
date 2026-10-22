@@ -14,6 +14,7 @@ import { StatusBar } from "expo-status-bar";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import QRCode from "react-native-qrcode-svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { validateIdentityPayload } from "./validateIdentity";
 
 const STORAGE_KEY = "@digital_identity_current";
 
@@ -177,13 +178,18 @@ function ScanScreen() {
     if (now - lastScanRef.current < 1500) return;
     lastScanRef.current = now;
 
-    try {
-      const parsed = JSON.parse(data);
-      setScannedData(parsed);
-      setScanning(false);
-    } catch (e) {
-      Alert.alert("Invalid QR", "This QR code doesn't contain a valid identity payload.");
+    // Format validation only: checks shape, ID format and dates. It does not
+    // prove the identity was issued by a trusted authority.
+    const result = validateIdentityPayload(data);
+    if (!result.valid) {
+      Alert.alert(
+        "Invalid QR",
+        "This QR code is not a valid identity payload.\n\n" + result.errors.slice(0, 3).join("\n")
+      );
+      return;
     }
+    setScannedData(result.identity);
+    setScanning(false);
   };
 
   const scanAgain = () => {
@@ -225,7 +231,14 @@ function ScanScreen() {
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.screen}>
-          <Text style={styles.sectionTitle}>✅ Identity Verified</Text>
+          <Text style={styles.sectionTitle}>✔ Format Check Passed</Text>
+          <View style={styles.warningBox}>
+            <Text style={styles.warningTitle}>Not verified as authentic</Text>
+            <Text style={styles.warningText}>
+              This QR has the expected structure only. The app cannot confirm who issued it or
+              that these details are true. Anyone can create a QR like this.
+            </Text>
+          </View>
           <View style={styles.card}>
             <Text style={styles.cardLabel}>Unique Identity ID</Text>
             <Text style={styles.cardValueMono}>{scannedData.id}</Text>
@@ -234,14 +247,10 @@ function ScanScreen() {
             <Row label="Reg. No." value={scannedData.regNo} />
             <Row label="Course" value={scannedData.course} />
             <Row
-              label="Issued"
-              value={
-                scannedData.issuedAt
-                  ? new Date(scannedData.issuedAt).toLocaleString()
-                  : "N/A"
-              }
+              label="Claimed issue date"
+              value={new Date(scannedData.issuedAt).toLocaleString()}
             />
-            <Row label="Verified At" value={new Date().toLocaleString()} />
+            <Row label="Scanned At" value={new Date().toLocaleString()} />
 
             <TouchableOpacity style={styles.primaryButton} onPress={scanAgain}>
               <Text style={styles.primaryButtonText}>Scan Another</Text>
@@ -400,6 +409,22 @@ const styles = StyleSheet.create({
     color: "#111827",
     fontSize: 13,
     fontWeight: "600",
+  },
+  warningBox: {
+    backgroundColor: "#FEF3C7",
+    borderWidth: 1,
+    borderColor: "#F59E0B",
+    borderRadius: 10,
+    padding: 12,
+  },
+  warningTitle: {
+    color: "#92400E",
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  warningText: {
+    color: "#92400E",
+    fontSize: 13,
   },
   scanOverlay: {
     position: "absolute",

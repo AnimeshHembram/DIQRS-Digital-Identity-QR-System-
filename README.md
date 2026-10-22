@@ -65,11 +65,32 @@ Once installed, it runs fully offline/locally on your phone — perfect for a pr
 - To demo with **two phones**: install the APK on both — one shows the QR, the other scans it. This looks the most impressive live.
 - The generated identity is saved locally (`AsyncStorage`), so it survives an app restart — you don't have to re-type the form every time you reopen the app.
 
+## Tests
+
+```bash
+npm test
+```
+
+Runs the identity-payload validation tests with Node's built-in test runner (Node 18+). No extra packages are needed.
+
+## Security notes and limitations
+
+The Scan tab runs **format validation only** (`validateIdentity.js`): valid JSON, exactly the expected fields, an ID matching `DID-<code>-<4 digits>`, and a real, non-future ISO date. A QR that passes is *well-formed*, not *authentic*.
+
+Known limitations of this demo:
+
+- **No issuer authentication.** Anyone can generate a QR that passes the format check. Real verification needs a trusted issuer: signed payloads checked against the issuer's public key, or a backend that confirms the ID is registered, active and not revoked.
+- **Personal data is embedded in the QR.** Name, registration number and course are readable by any QR scanner and can be copied or photographed. A safer design puts only an opaque ID or token in the QR and looks the details up server-side after authorization.
+- **No replay protection or revocation.** A copied QR works indefinitely.
+- **Data is stored unencrypted on the device** (AsyncStorage).
+
 ## Project structure
 
 ```
 DigitalIdentityQR/
 ├── App.js          # All 3 functions live here (single file, easy to read/present)
+├── validateIdentity.js  # Pure QR payload validation (format checks only)
+├── identity.test.js     # Tests for the validator (npm test)
 ├── app.json        # Expo app config (name, icon, camera permission)
 ├── eas.json        # Cloud APK build config
 ├── package.json    # Dependencies
